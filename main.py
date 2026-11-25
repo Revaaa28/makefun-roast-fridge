@@ -20,7 +20,25 @@ LINE = (
 )
 
 
+def validate_line(line: str) -> None:
+    """Gate the final entry before it is written.
+
+    The competition is one line, one laugh: a single line of 1-200 UTF-8
+    characters. Fail loudly instead of writing an entry that would be
+    rejected or truncated — a newline, an empty string, or an overlong
+    line means the build is broken, not the joke.
+    """
+    if not line:
+        raise ValueError("entry line must not be empty")
+    if "\n" in line or "\r" in line:
+        raise ValueError("entry line must be a single line")
+    n_chars = len(line.encode("utf-8"))
+    if n_chars > 200:
+        raise ValueError(f"entry line is {n_chars} UTF-8 chars, over the 200 limit")
+
+
 def main() -> None:
+    validate_line(LINE)
     out_dir = os.environ.get("OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
